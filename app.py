@@ -4,7 +4,8 @@ import cv2
 import numpy as np
 import mediapipe as mp
 from flask import Flask, request
-from flask_socketio import SocketIO, emit
+
+# from flask_socketio import SocketIO, emit
 import joblib
 from flask_sock import Sock
 
