@@ -116,10 +116,11 @@ categories = [
     ["yes", "نعم"],
 ]
 
+model_en = joblib.load("hand_gesture_model.pkl")
+detector = handDetector()
+
 
 def receive_image(image, lang):
-    model_en = joblib.load("hand_gesture_model.pkl")
-    detector = handDetector()
     try:
         # Decode the base64-encoded image data
         print("Got image")
@@ -151,19 +152,7 @@ def receive_image(image, lang):
                         sequence = category[1]
                         break
 
-            # # Encode the processed image as a JPEG-encoded base64 string
-            # encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
-            # result, frame_encoded = cv2.imencode(".jpg", frame_resized, encode_param)
-            # processed_img_data = base64.b64encode(frame_encoded).decode()
-
-            # # Prepend the base64-encoded string with the data URL prefix
-            # b64_src = "data:image/jpg;base64,"
-            # processed_img_data = b64_src + processed_img_data
-
-            # Send the processed image back to the client
-            # emit("processed_image", processed_img_data)
             return {"data": sequence, "probability": probability}
-            # emit("prediction", {"data": prediction[0], "probability": probability})
     except Exception as e:
         print(e)
 
