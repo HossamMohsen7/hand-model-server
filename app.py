@@ -91,8 +91,16 @@ def base64_to_image(base64_string):
 
     # Convert the bytes to numpy array
     image_array = np.frombuffer(image_bytes, dtype=np.uint8)
+    # rotated = np.rot90(image_array, axes=())
+    # rotated.tofile("rotated.png")
     # Decode the numpy array as an image using OpenCV
     image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+
+    # _, buffer = cv2.imencode(".png", image)
+    # fh = open("imageToSave.png", "wb")
+    # fh.write(buffer)
+    # fh.close()
     return image
 
 
@@ -201,7 +209,7 @@ async def main():
     # Set the stop condition when receiving SIGTERM.
     loop = asyncio.get_running_loop()
     stop = loop.create_future()
-    loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
+    # loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
 
     async with websockets.serve(
         echo,
