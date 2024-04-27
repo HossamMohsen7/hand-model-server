@@ -37,5 +37,6 @@ simple-websocket==1.0.0
 six==1.16.0
 sounddevice==0.4.6
 threadpoolctl==3.4.0
+websockets==12.0
 Werkzeug==3.0.2
 wsproto==1.2.0

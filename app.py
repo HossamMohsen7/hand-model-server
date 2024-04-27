@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import mediapipe as mp
 from flask import Flask, request
+import json
 
 # from flask_socketio import SocketIO, emit
 import joblib
@@ -171,21 +172,53 @@ def process():
         return {"data": "No hand detected"}
 
 
-# create handler for each connection
-# async def handler(websocket, path):
-#     data = await websocket.recv()
-#     reply = f"Data recieved as:  {data}!"
-#     await websocket.send(reply)
+import asyncio
+import http
+import signal
+
+import websockets
 
 
-# start_server = websockets.serve(handler, "0.0.0.0", 5000)
+async def health_check(path, request_headers):
+    if path == "/healthz":
+        return http.HTTPStatus.OK, [], b"OK\n"
 
-# asyncio.get_event_loop().run_until_complete(start_server)
-# asyncio.get_event_loop().run_forever()
+
+async def echo(websocket):
+    async for message in websocket:
+        # json
+        data = json.loads(message)
+        image = data["image"]
+        lang = data["lang"]
+        prediction = receive_image(image, lang)
+        if prediction:
+            await websocket.send(json.dumps(prediction))
+        else:
+            await websocket.send(json.dumps({"data": "No hand detected"}))
+
+
+async def main():
+    # Set the stop condition when receiving SIGTERM.
+    loop = asyncio.get_running_loop()
+    stop = loop.create_future()
+    loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
+
+    async with websockets.serve(
+        echo,
+        host="",
+        port=8080,
+        max_size=10 * 1024 * 1024,
+        process_request=health_check,
+    ):
+        await stop
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
 
 
 # socketio.on_event("image", receive_image, namespace="/")
 
-if __name__ == "__main__":
-    app.run(debug=True, port=5000, host="0.0.0.0")
-    # socketio.run(app, debug=True, port=5000, host="0.0.0.0")
+# if __name__ == "__main__":
+#     app.run(debug=True, port=5000, host="0.0.0.0")
+# socketio.run(app, debug=True, port=5000, host="0.0.0.0")
