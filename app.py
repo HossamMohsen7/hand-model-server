@@ -142,6 +142,9 @@ def receive_image(image, lang):
 
             sequence = prediction[0]
 
+            if sequence.endswith(".png"):
+                return {"data": "No hand detected"}
+
             if lang == "arabic":
                 for category in categories:
                     if category[0] == prediction[0]:
@@ -205,28 +208,28 @@ async def echo(websocket):
             await websocket.send(json.dumps({"data": "No hand detected"}))
 
 
-async def main():
-    # Set the stop condition when receiving SIGTERM.
-    loop = asyncio.get_running_loop()
-    stop = loop.create_future()
-    # loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
+# async def main():
+#     # Set the stop condition when receiving SIGTERM.
+#     loop = asyncio.get_running_loop()
+#     stop = loop.create_future()
+#     # loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
 
-    async with websockets.serve(
-        echo,
-        host="",
-        port=8080,
-        max_size=10 * 1024 * 1024,
-        process_request=health_check,
-    ):
-        await stop
+#     async with websockets.serve(
+#         echo,
+#         host="",
+#         port=8080,
+#         max_size=10 * 1024 * 1024,
+#         process_request=health_check,
+#     ):
+#         await stop
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+# if __name__ == "__main__":
+#     asyncio.run(main())
 
 
 # socketio.on_event("image", receive_image, namespace="/")
 
-# if __name__ == "__main__":
-#     app.run(debug=True, port=5000, host="0.0.0.0")
+if __name__ == "__main__":
+    app.run(debug=True, port=5000, host="0.0.0.0")
 # socketio.run(app, debug=True, port=5000, host="0.0.0.0")
